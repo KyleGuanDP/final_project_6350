@@ -29,10 +29,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     if (_selectedImages.length >= 4) return;
 
-    final image = await _picker.pickImage(source: ImageSource.camera);
+    final image = await _picker.pickImage(source: source);
 
     if (image != null) {
       setState(() {
@@ -72,7 +72,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
       final postsRef = FirebaseFirestore.instance.collection('posts');
       final docRef = postsRef.doc();
 
-      // 1. 上传图片到 Storage，拿到 URL 列表
       final List<String> downloadUrls = [];
       for (int i = 0; i < _selectedImages.length; i++) {
         final file = File(_selectedImages[i].path);
@@ -88,7 +87,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
         downloadUrls.add(url);
       }
 
-      // 2. 写入 Firestore（文字 + 图片 URL）
       await docRef.set({
         'title': title,
         'price': price,
@@ -100,7 +98,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
       if (!mounted) return;
 
-      // 通知上一页发帖成功（Browse 会显示 SnackBar）
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -171,15 +168,27 @@ class _NewPostScreenState extends State<NewPostScreen> {
               ),
               const SizedBox(height: 16),
 
+              // 拍照 + 相册按钮
               Row(
                 children: [
                   ElevatedButton.icon(
-                    onPressed: _pickImage,
+                    onPressed: () => _pickImage(ImageSource.camera),
                     icon: const Icon(Icons.camera_alt),
-                    label: const Text('Add Image'),
+                    label: const Text('Camera'),
                   ),
                   const SizedBox(width: 12),
-                  Text('${_selectedImages.length} / 4 selected'),
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery),
+                    icon: const Icon(Icons.photo),
+                    label: const Text('Gallery'),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '${_selectedImages.length} / 4 selected',
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
