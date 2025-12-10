@@ -81,16 +81,16 @@ class _BrowsePostsScreenState extends State<BrowsePostsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('刪除貼文'),
-        content: const Text('確定要刪除這則貼文嗎？圖片也會一起刪除。'),
+        title: const Text('Delete Post?'),
+        content: const Text('Do you really want to delete this post?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('刪除'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -125,13 +125,13 @@ class _BrowsePostsScreenState extends State<BrowsePostsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('已刪除貼文')));
+      ).showSnackBar(const SnackBar(content: Text('Already deleted')));
     } catch (e) {
       if (!mounted) return;
       debugPrint('delete failed: $e');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('刪除失敗: $e')));
+      ).showSnackBar(SnackBar(content: Text('Delete Failed: $e')));
     }
   }
 
@@ -231,16 +231,76 @@ class _BrowsePostsScreenState extends State<BrowsePostsScreen> {
                         horizontal: 12,
                         vertical: 6,
                       ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
                       child: ListTile(
-                        title: Text(post.title),
-                        subtitle: Text(
-                          '\$${post.price.toStringAsFixed(2)}\n'
-                          '${post.description}\n'
-                          '${_formatTime(post.createdAt)}',
-                          maxLines: 3,
+                        // 左侧缩略图
+                        leading: post.imageUrls.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: SizedBox(
+                                  width: 72,
+                                  height: 72,
+                                  child: Image.network(
+                                    post.imageUrls.first, // 第一张图当预览图
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.grey[200],
+                                ),
+                                child: const Icon(
+                                  Icons.image_not_supported_outlined,
+                                  color: Colors.grey,
+                                ),
+                              ),
+
+                        title: Text(
+                          post.title,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
-                        isThreeLine: true,
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '\$${post.price.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                post.description,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _formatTime(post.createdAt),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(

@@ -30,7 +30,16 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    if (_selectedImages.length >= 4) return;
+    // 先判断是否已经达到上限
+    if (_selectedImages.length >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reach maximum photos (4).'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
 
     final image = await _picker.pickImage(source: source);
 
@@ -49,7 +58,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     if (title.isEmpty || priceText.isEmpty || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('請把 Title / Price / Description 都填好'),
+          content: Text('please enter Title / Price / Description'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -60,7 +69,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     if (price == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Price 請輸入數字'),
+          content: Text('Please enter a valid number for Price'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -101,11 +110,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Post failed: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Post failed: $e')));
     }
   }
 
@@ -130,10 +137,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
             children: [
               const Text(
                 'Create a New Listing',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
@@ -231,10 +235,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: _handlePost,
-                  child: const Text(
-                    'Post',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  child: const Text('Post', style: TextStyle(fontSize: 18)),
                 ),
               ),
             ],

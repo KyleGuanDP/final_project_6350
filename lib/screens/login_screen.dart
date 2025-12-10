@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('請輸入 Email 和 Password')));
+      ).showSnackBar(const SnackBar(content: Text('Please Enter Email and Password')));
       return;
     }
 
@@ -65,13 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       String message = 'Auth error: ${e.code}';
       if (e.code == 'user-not-found') {
-        message = '帳號不存在，請先註冊';
+        message = 'Account not found';
       } else if (e.code == 'wrong-password') {
-        message = '密碼錯誤';
+        message = 'Wrong password';
       } else if (e.code == 'email-already-in-use') {
-        message = '這個 email 已經被註冊過了';
+        message = 'This email have been registered';
       } else if (e.code == 'weak-password') {
-        message = '密碼太弱（至少 6 位）';
+        message = 'Week password, please choose a stronger one';
       } else if (e.code == 'operation-not-allowed') {
         message = 'Email/Password 尚未在 Firebase Console 啟用';
       }
@@ -154,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 TextButton(
                   onPressed: _toggleMode,
-                  child: Text(isLogin ? '還沒有帳號？點這裡註冊' : '已有帳號？點這裡登入'),
+                  child: Text(isLogin ? 'Not Registered yet?' : 'Already have an account? Sign In'),
                 ),
               ],
             ),
